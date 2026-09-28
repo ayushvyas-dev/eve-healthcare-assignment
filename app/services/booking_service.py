@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.booking import Booking, BookingStatus
 from app.models.centre import DiagnosticCentre
@@ -32,10 +32,22 @@ async def create_booking(db: AsyncSession, user_id, test_id, centre_id, appointm
     return booking
 
 
-async def get_owned_booking(db: AsyncSession, booking_id, user_id):
-    booking = await db.get(Booking, booking_id)
+async def get_owned_booking(db: AsyncSession, booking_id, user_id, *, for_update: bool = False):
+    booking = await db.get(Booking, booking_id, with_for_update=for_update)
     if booking is None:
         raise LookupError("Booking not found")
     if booking.user_id != user_id:
         raise PermissionError("Booking belongs to another user")
     return booking
+
+
+async def list_user_bookings(db: AsyncSession, user_id, page: int, limit: int):
+    total = await db.scalar(select(func.count()).select_from(Booking).where(Booking.user_id == user_id)) or 0
+    result = await db.scalars(
+        select(Booking)
+        .where(Booking.user_id == user_id)
+        .order_by(Booking.created_at.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
+    )
+    return list(result), total

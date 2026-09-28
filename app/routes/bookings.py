@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from uuid import UUID
-from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.dependencies.auth import get_current_user
-from app.models.booking import Booking
 from app.models.user import User
 from app.schemas.booking import BookingCreate, BookingOut
 from app.schemas.common import Page
-from app.services.booking_service import create_booking, get_owned_booking
+from app.services.booking_service import create_booking, get_owned_booking, list_user_bookings
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -24,10 +22,10 @@ async def post_booking(payload: BookingCreate, db: AsyncSession = Depends(get_db
 
 
 @router.get("/", response_model=Page[BookingOut])
-async def list_bookings(page: int = Query(1, ge=1), limit: int = Query(20, ge=1, le=100), db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
-    total = await db.scalar(select(func.count()).select_from(Booking).where(Booking.user_id == user.id)) or 0
-    result = await db.scalars(select(Booking).where(Booking.user_id == user.id).order_by(Booking.created_at.desc()).offset((page - 1) * limit).limit(limit))
-    return Page(items=list(result), page=page, limit=limit, total=total)
+async def list_bookings(page: int = Query(1, ge=1), limit: int = Query(20, ge=1), db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    limit = min(limit, 100)
+    items, total = await list_user_bookings(db, user.id, page, limit)
+    return Page(items=items, page=page, limit=limit, total=total)
 
 
 @router.get("/{booking_id}", response_model=BookingOut)

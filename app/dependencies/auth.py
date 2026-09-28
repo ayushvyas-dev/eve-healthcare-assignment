@@ -1,5 +1,6 @@
 from uuid import UUID
 import jwt
+import structlog
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,4 +20,5 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     user = await db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid or expired access token", headers={"WWW-Authenticate": "Bearer"})
+    structlog.contextvars.bind_contextvars(user_id=str(user.id))
     return user

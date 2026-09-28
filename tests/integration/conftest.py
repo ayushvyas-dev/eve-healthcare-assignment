@@ -1,4 +1,5 @@
-import os
+import uuid
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -21,7 +22,8 @@ async def client(tmp_path):
             yield session
 
     app.dependency_overrides[get_db] = override_db
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as test_client:
+    transport = ASGITransport(app=app, client=(f"test-{uuid.uuid4()}", 12345))
+    async with AsyncClient(transport=transport, base_url="http://test") as test_client:
         yield test_client
     app.dependency_overrides.clear()
     await engine.dispose()
