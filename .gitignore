@@ -1,0 +1,110 @@
+# =========================
+# Python
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python cache / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# =========================
+# Virtual environments
+# =========================
+
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# =========================
+# Environment variables
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+# Build / packaging
+# =========================
+
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+*.whl
+
+# =========================
+# IDE / Editors
+# =========================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+# OS generated files
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+
+*.log
+logs/
+
+# =========================
+# FastAPI / Uvicorn
+# =========================
+
+.uvicorn/
+
+# =========================
+# Alembic
+# =========================
+
+# Do NOT ignore alembic migration files.
+# They are part of the source code and MUST be committed.
+
+# =========================
+# Docker
+# =========================
+
+docker-compose.override.yml
+
+# =========================
+# Temporary / local files
+# =========================
+
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Local database files, if created during development
+*.sqlite
+*.sqlite3
+*.db
+
+.pdf
+architecture.md
